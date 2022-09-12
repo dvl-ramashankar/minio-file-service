@@ -146,7 +146,7 @@ func downloadFileFromMinio(w http.ResponseWriter, fileName, bucketName string) (
 
 	reader, err := minioClient.GetObject(context.Background(), bucketName, fileName, minio.GetObjectOptions{})
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
 		return "", err
 	}
 	defer reader.Close()
@@ -157,17 +157,20 @@ func downloadFileFromMinio(w http.ResponseWriter, fileName, bucketName string) (
 	fullPath := downloadPath + fileName
 	localFile, err := os.Create(fullPath)
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
+		return "", err
 	}
 	defer localFile.Close()
 
 	stat, err := reader.Stat()
 	if err != nil {
+		log.Println(err)
 		return "", err
 	}
 
 	if _, err := io.CopyN(localFile, reader, stat.Size); err != nil {
-		log.Fatalln(err)
+		log.Println(err)
+		return "", err
 	}
 
 	return "File Downloaded Successfully", nil
